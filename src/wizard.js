@@ -232,9 +232,11 @@ angular.module('mgo-angular-wizard').directive('wizard', function() {
             };
 
             //used to traverse to any step, step number placed as argument
-            this.goTo = function(step) {
+            this.goTo = function(step, markPreviousStepsCompleted) {
                 var enabledSteps = $scope.getEnabledSteps();
                 var stepTo;
+                var previousSteps;
+                
                 //checking that step is a Number
                 if (_.isNumber(step)) {
                     stepTo = enabledSteps[step];
@@ -242,8 +244,21 @@ angular.module('mgo-angular-wizard').directive('wizard', function() {
                     //finding the step associated with the title entered as goTo argument
                     stepTo = _.findWhere(enabledSteps, {title: step});
                 }
+                // marking previous steps as completed
+                if (markPreviousStepsCompleted) {
+                    previousSteps = enabledSteps.slice(0, enabledSteps.indexOf(stepTo));
+                    previousSteps.forEach(function (step) {
+                        step.completed = true;
+                    });
+                }
+                
+                
                 //going to step
                 $scope.goTo(stepTo);
+            };
+            
+            this.completeSelectedStep = function () {
+                $scope.selectedStep.completed = true;
             };
 
             //calls finish() which calls onFinish() which is declared on an attribute and linked to controller via wizard directive.
